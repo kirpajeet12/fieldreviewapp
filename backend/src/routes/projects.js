@@ -12,21 +12,31 @@ router.get("/", (req, res) => {
 });
 
 /**
- * CREATE project
+ * CREATE new project
  */
 router.post("/", (req, res) => {
-  const { name, client, disciplines } = req.body;
+  const {
+    name,
+    clientName,
+    disciplines = []
+  } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: "Project name required" });
   }
 
   const project = {
-    id: generateId("PRJ"),
+    id: generateId("proj"),
     name,
-    client,
-    disciplines: disciplines || [],
+    clientName: clientName || "",
+    disciplines,
     createdAt: new Date().toISOString()
   };
 
-  store.projects.push(projec
+  // ✅ THIS LINE WAS BROKEN BEFORE
+  store.projects.push(project);
+
+  res.json(project);
+});
+
+export default router;
