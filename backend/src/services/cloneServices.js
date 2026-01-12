@@ -1,28 +1,58 @@
-// backend/src/services/cloneService.js
-
 import { store } from "../store/memoryStore.js";
 import { generateId } from "../utils/id.js";
 
-export function cloneFieldReview(previousFRId) {
-  const previousFR = store.fieldReviews.find(fr => fr.id === previousFRId);
-  if (!previousFR) throw new Error("Previous Field Review not found");
+export function createBaseFieldReview(projectId, disciplineId) {
+  const discipline = store.disciplineConfigs.find(
+    d => d.disciplineId === disciplineId
+  );
 
-  const clonedFR = {
-    id: generateId(),
-    projectId: previousFR.projectId,
-    disciplineId: previousFR.disciplineId,
+  const fr = {
+    id: generateId("FR"),
+    projectId,
+    disciplineId,
     createdAt: new Date(),
-
-    stages: previousFR.stages.map(stage => ({
-      stageId: stage.stageId,
-      status: stage.status,
-      decidedBy: stage.decidedBy,
-      decidedAt: stage.decidedAt
+    stages: discipline.stages.map(s => ({
+      stageId: s.stageId,
+      status: "NOT_STARTED",
+      decidedBy: null,
+      decidedAt: null
     })),
-
-    finalStatus: previousFR.finalStatus
+    finalStatus: "NOT_QUALIFIED"
   };
 
-  store.fieldReviews.push(clonedFR);
-  return clonedFR;
+  store.fieldReviews.push(fr);
+  return fr;
+}
+
+export function cloneFieldReview(previousFRId) {
+  const prev = store.fieldReviews.find(f => f.id === previousFRId);
+  if (!prev) throw new Error("Previous FR not found");
+
+  const cloned = {
+    id: generateId("FR"),
+    projectId: prev.projectId,
+    disciplineId: prev.disciplineId,
+    createdAt: new Date(),
+    stages: prev.stages.map(s => ({ ...s })),
+    finalStatus: prev.finalStatus
+  };
+
+  store.fieldReviews.push(cloned);
+  carryForwardDeficiencies(prev.id, cloned.id);
+
+  return cloned;
+}
+
+function carryForwardDeficiencies(oldFR, newFR) {
+  store.deficiencies
+    .filter(d => d.fieldReviewId === oldFR && d.status !== "RESOLVED")
+    .forEach(d =>
+      store.deficiencies.push({
+        ...d,
+        id: generateId("DEF"),
+        fieldReviewId: newFR,
+        carriedFrom: d.id,
+        status: "PENDING_VERIFICATION"
+      })
+    );
 }
