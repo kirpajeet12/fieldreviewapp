@@ -1,21 +1,39 @@
-const RENDER_URL = "https://YOUR-RENDER-URL.onrender.com";
+// camera.js
 
-function analyze() {
-  const file = document.getElementById("photo").files[0];
-  if (!file) return alert("Select photo");
+const fileInput = document.getElementById("photoInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const outputDiv = document.getElementById("aiOutput");
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    fetch(`${RENDER_URL}/api/ai/analyze`, {
+analyzeBtn.addEventListener("click", async () => {
+  if (!fileInput.files.length) {
+    alert("Please select an image first");
+    return;
+  }
+
+  outputDiv.innerHTML = "⏳ Analyzing image...";
+
+  const formData = new FormData();
+  formData.append("image", fileInput.files[0]);
+
+  try {
+    const res = await fetch("/api/ai/analyze", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: reader.result })
-    })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("aiResult").textContent =
-          JSON.stringify(data, null, 2);
-      });
-  };
-  reader.readAsDataURL(file);
-}
+      body: formData
+      // ❗ DO NOT set headers manually for FormData
+    });
+
+    if (!res.ok) {
+      throw new Error("Server error");
+    }
+
+    const data = await res.json();
+
+    outputDiv.innerHTML = `
+      <h3>AI Analysis</h3>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+    `;
+  } catch (err) {
+    console.error(err);
+    outputDiv.innerHTML = "❌ AI analysis failed";
+  }
+});
