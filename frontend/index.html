@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Field Review Web App</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Field Review System</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Field Review</h1>
+  <h1>Field Review System</h1>
 
-  <input type="file" id="photoInput" accept="image/*" />
-  <button id="analyzeBtn">Analyze Photo</button>
+  <section>
+    <h3>Login</h3>
+    <input id="email" placeholder="Email" />
+    <button onclick="login()">Login</button>
+  </section>
 
-  <pre id="output"></pre>
+  <section>
+    <h3>Projects</h3>
+    <button onclick="loadProjects()">Load Projects</button>
+    <ul id="projects"></ul>
+  </section>
+
+  <button onclick="location.href='project.html'">➕ Create Project</button>
 
   <script src="main.js"></script>
 </body>
