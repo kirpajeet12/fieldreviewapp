@@ -1,17 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Field Review</title>
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2>Field Review</h2>
-<input type="file" id="photoInput" />
-<button id="analyzeBtn">Analyze Photo (AI)</button>
 
-<div id="aiOutput"></div>
+  <h1>Field Review</h1>
 
-<script src="camera.js"></script>
+  <!-- DISCIPLINE SELECT -->
+  <label>Discipline</label>
+  <select id="discipline">
+    <option value="fs">Fire Stopping</option>
+    <option value="be">Building Envelope</option>
+  </select>
 
+  <br /><br />
+
+  <!-- IMAGE INPUT -->
+  <input type="file" id="photo" accept="image/*" />
+
+  <button id="analyze">Analyze Photo (AI)</button>
+
+  <pre id="output"></pre>
+
+  <script src="camera.js"></script>
 </body>
 </html>
