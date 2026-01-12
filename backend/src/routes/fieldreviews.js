@@ -1,24 +1,23 @@
 import express from "express";
-import { store } from "../store/memoryStore.js";
-import { cloneFieldReview } from "../services/cloneService.js";
+import {
+  createBaseFieldReview,
+  cloneFieldReview
+} from "../services/cloneService.js";
+import { generateReport } from "../services/reportService.js";
 
 const router = express.Router();
 
-// Create Field Review
-router.post("/", (req, res) => {
-  const fr = {
-    ...req.body,
-    createdAt: new Date()
-  };
-
-  store.fieldReviews.push(fr);
-  res.json(fr);
+router.post("/base", (req, res) => {
+  const { projectId, disciplineId } = req.body;
+  res.json(createBaseFieldReview(projectId, disciplineId));
 });
 
-// Clone Field Review
 router.post("/clone/:id", (req, res) => {
-  const cloned = cloneFieldReview(req.params.id);
-  res.json(cloned);
+  res.json(cloneFieldReview(req.params.id));
+});
+
+router.get("/report/:id", (req, res) => {
+  res.json(generateReport(req.params.id));
 });
 
 export default router;
