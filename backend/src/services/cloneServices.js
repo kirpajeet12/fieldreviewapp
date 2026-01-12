@@ -1,17 +1,28 @@
+// backend/src/services/cloneService.js
+
 import { store } from "../store/memoryStore.js";
 import { generateId } from "../utils/id.js";
 
-export function cloneFieldReview(originalId) {
-  const original = store.fieldReviews.find(f => f.id === originalId);
-  if (!original) throw new Error("Field Review not found");
+export function cloneFieldReview(previousFRId) {
+  const previousFR = store.fieldReviews.find(fr => fr.id === previousFRId);
+  if (!previousFR) throw new Error("Previous Field Review not found");
 
-  const cloned = {
-    ...original,
+  const clonedFR = {
     id: generateId(),
-    clonedFrom: originalId,
-    createdAt: new Date()
+    projectId: previousFR.projectId,
+    disciplineId: previousFR.disciplineId,
+    createdAt: new Date(),
+
+    stages: previousFR.stages.map(stage => ({
+      stageId: stage.stageId,
+      status: stage.status,
+      decidedBy: stage.decidedBy,
+      decidedAt: stage.decidedAt
+    })),
+
+    finalStatus: previousFR.finalStatus
   };
 
-  store.fieldReviews.push(cloned);
-  return cloned;
+  store.fieldReviews.push(clonedFR);
+  return clonedFR;
 }
