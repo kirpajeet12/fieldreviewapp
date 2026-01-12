@@ -1,32 +1,34 @@
-const fileInput = document.querySelector("input[type='file']");
-const analyzeBtn = document.querySelector("button");
-const output = document.createElement("pre");
-document.body.appendChild(output);
+const fileInput = document.getElementById("photo");
+const analyzeBtn = document.getElementById("analyze");
+const output = document.getElementById("output");
+const disciplineSelect = document.getElementById("discipline");
 
 analyzeBtn.onclick = async () => {
   const file = fileInput.files[0];
-  if (!file) {
-    alert("Select an image first");
-    return;
-  }
+  if (!file) return alert("Select image");
 
-  const formData = new FormData();
-  formData.append("image", file);
-  formData.append("projectId", "demo-project-1");     // TEMP
-  formData.append("disciplineId", "fs");               // fs / be / pl
+  const reader = new FileReader();
 
-  try {
-    const res = await fetch("/api/ai/analyze", {
-      method: "POST",
-      body: formData
-    });
+  reader.onload = async () => {
+    try {
+      output.innerText = "Analyzing image…";
 
-    if (!res.ok) throw new Error("Server error");
+      const res = await fetch("/api/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          disciplineId: disciplineSelect.value,
+          imageBase64: reader.result
+        })
+      });
 
-    const data = await res.json();
-    output.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    console.error(err);
-    output.textContent = "❌ AI analysis failed";
-  }
+      const data = await res.json();
+      output.innerText = JSON.stringify(data, null, 2);
+
+    } catch (e) {
+      output.innerText = "❌ AI analysis failed";
+    }
+  };
+
+  reader.readAsDataURL(file);
 };
