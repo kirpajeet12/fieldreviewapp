@@ -3,6 +3,8 @@ import multer from "multer";
 import { analyzeImage } from "../services/aiService.js";
 
 const router = express.Router();
+
+// store image in memory (best for AI)
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/analyze", upload.single("image"), async (req, res) => {
@@ -12,10 +14,9 @@ router.post("/analyze", upload.single("image"), async (req, res) => {
     }
 
     const result = await analyzeImage(req.file);
-
     res.json(result);
   } catch (err) {
-    console.error("AI analyze error:", err);
+    console.error("AI ERROR:", err);
     res.status(500).json({ error: "AI analysis failed" });
   }
 });
