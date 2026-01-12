@@ -5,20 +5,29 @@ import { analyzeImage } from "../services/aiService.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.post("/analyze", upload.single("image"), async (req, res) => {
+router.post("/("/analyze", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No image uploaded" });
+    const { projectId, disciplineId } = req.body;
+
+    if (!projectId || !disciplineId) {
+      return res.status(400).json({ error: "Project and discipline required" });
     }
 
-    const result = await analyzeImage(req.file.buffer);
+    if (!req.file) {
+      return res.status(400).json({ error: "Image required" });
+    }
+
+    const aiResult = await analyzeImage({
+      imageBuffer: req.file.buffer,
+      disciplineId
+    });
 
     res.json({
       success: true,
-      result
+      aiResult
     });
   } catch (err) {
-    console.error("AI analyze error:", err);
+    console.error(err);
     res.status(500).json({ error: "AI analysis failed" });
   }
 });
