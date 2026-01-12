@@ -1,5 +1,3 @@
-// backend/src/services/reportService.js
-
 import { store } from "../store/memoryStore.js";
 
 export function generateReport(fieldReviewId) {
@@ -8,25 +6,18 @@ export function generateReport(fieldReviewId) {
     d => d.disciplineId === fr.disciplineId
   );
 
-  const reportStages = fr.stages
-    .filter(stage =>
-      discipline.stages.find(
-        s => s.stageId === stage.stageId && s.showInReport
-      )
-    )
-    .map(stage => ({
-      stageId: stage.stageId,
-      status: stage.status
-    }));
-
-  const reportDeficiencies = store.deficiencies.filter(
-    d => d.fieldReviewId === fieldReviewId
-  );
-
   return {
     discipline: discipline.name,
-    stages: reportStages,
-    deficiencies: reportDeficiencies,
+    stages: fr.stages
+      .filter(s =>
+        discipline.stages.find(
+          ds => ds.stageId === s.stageId && ds.showInReport
+        )
+      )
+      .map(s => ({ stageId: s.stageId, status: s.status })),
+    deficiencies: store.deficiencies.filter(
+      d => d.fieldReviewId === fieldReviewId
+    ),
     finalStatus: fr.finalStatus
   };
 }
