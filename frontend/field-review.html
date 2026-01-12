@@ -6,13 +6,12 @@
 </head>
 <body>
   <h2>Field Review</h2>
+<input type="file" id="photoInput" />
+<button id="analyzeBtn">Analyze Photo (AI)</button>
 
-  <input type="file" accept="image/*" id="photo" />
+<div id="aiOutput"></div>
 
-  <button onclick="analyze()">Analyze Photo (AI)</button>
+<script src="camera.js"></script>
 
-  <pre id="aiResult"></pre>
-
-  <script src="camera.js"></script>
 </body>
 </html>
