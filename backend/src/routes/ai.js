@@ -1,53 +1,26 @@
-import OpenAI from "openai";
-import fs from "fs";
+import express from "express";
+import multer from "multer";
+import { analyzeImage } from "../services/aiService.js";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
+
+router.post("/analyze", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
+    }
+
+    const result = await analyzeImage(req.file.buffer);
+
+    res.json({
+      success: true,
+      result
+    });
+  } catch (err) {
+    console.error("AI analyze error:", err);
+    res.status(500).json({ error: "AI analysis failed" });
+  }
 });
 
-export async function analyzeImage(imagePath) {
-  const imageBuffer = fs.readFileSync(imagePath);
-
-  const response = await openai.responses.create({
-    model: "gpt-4.1-mini",
-    input: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "input_text",
-            text: `
-You are a professional building inspector.
-
-Analyze the image and return JSON with:
-- discipline
-- stage
-- deficiency
-- confidence (low | medium | high)
-
-Only return valid JSON.
-            `
-          },
-          {
-            type: "input_image",
-            image_base64: imageBuffer.toString("base64")
-          }
-        ]
-      }
-    ]
-  });
-
-  const text = response.output_text;
-
-  // Safety fallback
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {
-      discipline: "Unknown",
-      stage: "Review Required",
-      deficiency: text,
-      confidence: "low"
-    };
-  }
-}
+export default router;
