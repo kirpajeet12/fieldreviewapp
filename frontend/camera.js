@@ -1,39 +1,32 @@
-// camera.js
+const fileInput = document.querySelector("input[type='file']");
+const analyzeBtn = document.querySelector("button");
+const output = document.createElement("pre");
+document.body.appendChild(output);
 
-const fileInput = document.getElementById("photoInput");
-const analyzeBtn = document.getElementById("analyzeBtn");
-const outputDiv = document.getElementById("aiOutput");
-
-analyzeBtn.addEventListener("click", async () => {
-  if (!fileInput.files.length) {
-    alert("Please select an image first");
+analyzeBtn.onclick = async () => {
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Select an image first");
     return;
   }
 
-  outputDiv.innerHTML = "⏳ Analyzing image...";
-
   const formData = new FormData();
-  formData.append("image", fileInput.files[0]);
+  formData.append("image", file);
+  formData.append("projectId", "demo-project-1");     // TEMP
+  formData.append("disciplineId", "fs");               // fs / be / pl
 
   try {
     const res = await fetch("/api/ai/analyze", {
       method: "POST",
       body: formData
-      // ❗ DO NOT set headers manually for FormData
     });
 
-    if (!res.ok) {
-      throw new Error("Server error");
-    }
+    if (!res.ok) throw new Error("Server error");
 
     const data = await res.json();
-
-    outputDiv.innerHTML = `
-      <h3>AI Analysis</h3>
-      <pre>${JSON.stringify(data, null, 2)}</pre>
-    `;
+    output.textContent = JSON.stringify(data, null, 2);
   } catch (err) {
     console.error(err);
-    outputDiv.innerHTML = "❌ AI analysis failed";
+    output.textContent = "❌ AI analysis failed";
   }
-});
+};
