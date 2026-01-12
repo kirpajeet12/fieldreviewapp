@@ -4,12 +4,29 @@ import { generateId } from "../utils/id.js";
 
 const router = express.Router();
 
-router.post("/", (req, res) => {
-  const project = { id: generateId("PRJ"), ...req.body };
-  store.projects.push(project);
-  res.json(project);
+/**
+ * GET all projects
+ */
+router.get("/", (req, res) => {
+  res.json(store.projects);
 });
 
-router.get("/", (_, res) => res.json(store.projects));
+/**
+ * CREATE project
+ */
+router.post("/", (req, res) => {
+  const { name, client, disciplines } = req.body;
 
-export default router;
+  if (!name) {
+    return res.status(400).json({ error: "Project name required" });
+  }
+
+  const project = {
+    id: generateId("PRJ"),
+    name,
+    client,
+    disciplines: disciplines || [],
+    createdAt: new Date().toISOString()
+  };
+
+  store.projects.push(projec
