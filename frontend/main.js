@@ -1,21 +1,55 @@
-const analyzeBtn = document.getElementById("analyzeBtn");
-const output = document.getElementById("output");
-const photoInput = document.getElementById("photoInput");
+const RENDER_URL = "https://YOUR-RENDER-URL.onrender.com";
 
-analyzeBtn.onclick = async () => {
-  const file = photoInput.files[0];
-  if (!file) return alert("Select a photo");
+// LOGIN
+function login() {
+  fetch(`${RENDER_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.value })
+  })
+    .then(res => res.json())
+    .then(() => alert("Logged in"));
+}
 
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const res = await fetch("http://localhost:3001/api/ai/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: reader.result })
+// PROJECTS
+function loadProjects() {
+  fetch(`${RENDER_URL}/api/projects`)
+    .then(res => res.json())
+    .then(projects => {
+      const ul = document.getElementById("projects");
+      ul.innerHTML = "";
+      projects.forEach(p => {
+        const li = document.createElement("li");
+        li.innerText = p.name;
+        ul.appendChild(li);
+      });
     });
+}
 
-    const data = await res.json();
-    output.textContent = JSON.stringify(data, null, 2);
-  };
-  reader.readAsDataURL(file);
-};
+function createProject() {
+  fetch(`${RENDER_URL}/api/projects`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.value,
+      client: client.value,
+      discipline: discipline.value
+    })
+  })
+    .then(res => res.json())
+    .then(() => {
+      alert("Project Created");
+      location.href = "index.html";
+    });
+}
+
+// REPORT
+function loadReport() {
+  const frId = prompt("Enter Field Review ID");
+  fetch(`${RENDER_URL}/api/field-reviews/report/${frId}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("report").textContent =
+        JSON.stringify(data, null, 2);
+    });
+}
